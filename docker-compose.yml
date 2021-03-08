@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+    db:
+        image: mysql:8
+        container_name: docker-mysql3
+        environment:           
+            MYSQL_DATABASE: gestor_tareas
+            MYSQL_USER: manolohidalgo_
+            MYSQL_PASSWORD: '123456'
+            MYSQL_ROOT_PASSWORD: '123456'
+        ports:
+          - "3306:3306"
+        volumes: 
+           - ./shared_tmp:/var/lib/mysql
+           - ./mysql_local.cnf:/etc/mysql/conf.d/mysql_local.cnf:ro
+        restart: always
+        networks:
+          - default
+    
+    www:
+        build:
+            context: .
+            dockerfile: PHP.Dockerfile
+        container_name: docker-php3
+        ports:
+          - "80:80"
+        volumes:
+          - ./www:/var/www/html
+        links:
+          - db
+        networks:
+          - default
+
+    phpmyadmin:
+        image: phpmyadmin
+        container_name: docker-admin3
+        restart: always
+        ports:
+          - "8080:80"
+        environment:
+            PMA_ARBITRARY: 1
+            MYSQL_USER: manolohidalgo_
+            MYSQL_PASSWORD: '123456'
+            MYSQL_ROOT_PASSWORD: '123456'
+        links:
+          - db
+    postgres:
+        image: postgres
+        container_name: docker-pg2
+        restart: always
+        ports:
+          - "5433:5433"
+        environment:
+            POSTGRES_PASSWORD: "123456"
